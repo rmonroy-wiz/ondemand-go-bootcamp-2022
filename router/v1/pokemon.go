@@ -14,7 +14,7 @@ func PokemonRoutes(r *gin.Engine) *gin.Engine {
 
 	pokemon := controller.NewPokemonController(
 		business.NewPokemonBusiness(
-			repository.NewPokemonRepository(pokemonFile),
+			repository.NewPokemonRepository(service.NewCSV(), service.NewFile(pokemonFile)),
 			service.NewExternalPokemonAPI(),
 		),
 	)
@@ -25,5 +25,6 @@ func PokemonRoutes(r *gin.Engine) *gin.Engine {
 		v1.GET("/pokemons/:pokemonId", pokemon.GetPokemonByID)
 		v1.POST("/pokemons/:pokemonId", pokemon.StorePokemonByID)
 	}
+
 	return r
 }

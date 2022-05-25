@@ -5,8 +5,7 @@ import (
 
 	"github.com/rmonroy-wiz/ondemand-go-bootcamp-2022/model"
 	"github.com/rmonroy-wiz/ondemand-go-bootcamp-2022/model/mapper"
-
-	"github.com/gocarina/gocsv"
+	"github.com/rmonroy-wiz/ondemand-go-bootcamp-2022/service"
 )
 
 //go:generate mockery --name PokemonRepository --filename pokemon.go --outpkg mocks --structname PokemonRepositoryMock --disable-version-string
@@ -19,43 +18,32 @@ type PokemonRepository interface {
 
 // PokemonRepository structure for repository, contains the csv file's name
 type pokemonRepository struct {
-	file string
+	csvService  service.CSV
+	fileService service.File
 }
 
 // NewPokemonRepository method for create a Repository instance
-func NewPokemonRepository(csvFilename string) *pokemonRepository {
+func NewPokemonRepository(csvServ service.CSV, fileServ service.File) *pokemonRepository {
 	return &pokemonRepository{
-		file: csvFilename,
+		csvService:  csvServ,
+		fileService: fileServ,
 	}
 }
 
 // GetAll get all pokemons from csv file
 func (p *pokemonRepository) GetAll() ([]*model.PokemonDTO, *model.ErrorHandler) {
-	pokemonFile, err := p.openFile()
-	if err != nil {
-		return nil, err
-	}
-	pokemons := []model.PokemonCSV{}
-
-	if err := gocsv.UnmarshalFile(pokemonFile, &pokemons); err != nil {
-		return nil, model.NewUnmarshalFileError(err.Error())
-	}
-	defer p.closeFile(pokemonFile)
-	return mapper.PokemonsCSVToPokemonsDTO(pokemons), nil
-}
-
-// openFile open the csv file
-func (p pokemonRepository) openFile() (*os.File, *model.ErrorHandler) {
-	filePokemon, err := os.OpenFile(p.file, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	pokemonFile, err := p.fileService.OpenFile(os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return nil, model.NewOpenFileError(err.Error())
 	}
-	return filePokemon, nil
-}
+	pokemons := []model.PokemonCSV{}
 
-// closeFile close csv file
-func (p pokemonRepository) closeFile(file *os.File) {
-	file.Close()
+	if err := p.csvService.UnmarshalFile(pokemonFile, &pokemons); err != nil {
+		return nil, model.NewUnmarshalFileError(err.Error())
+	}
+
+	defer p.fileService.Close()
+	return mapper.PokemonsCSVToPokemonsDTO(pokemons), nil
 }
 
 // GetByID get pokemon from csv by id
@@ -64,6 +52,7 @@ func (p pokemonRepository) GetByID(id int) (*model.PokemonDTO, *model.ErrorHandl
 	if err != nil {
 		return nil, err
 	}
+
 	for _, pokemon := range pokemons {
 		if pokemon.Id == id {
 			return pokemon, nil
@@ -74,7 +63,7 @@ func (p pokemonRepository) GetByID(id int) (*model.PokemonDTO, *model.ErrorHandl
 }
 
 // StoreToCSV store pokemon to csv
-func (p pokemonRepository) StoreToCSV(pokemonAPI model.PokemonAPI) (*model.PokemonDTO, *model.ErrorHandler) {
+func (p *pokemonRepository) StoreToCSV(pokemonAPI model.PokemonAPI) (*model.PokemonDTO, *model.ErrorHandler) {
 	pokemonMap, err := p.GetCSVDataInMemory()
 	if err != nil {
 		return nil, err
@@ -85,14 +74,15 @@ func (p pokemonRepository) StoreToCSV(pokemonAPI model.PokemonAPI) (*model.Pokem
 	for _, pokemonObj := range pokemonMap {
 		pokemons = append(pokemons, pokemonObj)
 	}
-	pokemonFile, err := p.openFile()
-	if err != nil {
-		return nil, err
+
+	pokemonFile, errFile := p.fileService.OpenFile(os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if errFile != nil {
+		return nil, model.NewOpenFileError(errFile.Error())
 	}
-	if err := gocsv.MarshalFile(&pokemons, pokemonFile); err != nil {
+	if err := p.csvService.MarshalFile(&pokemons, pokemonFile); err != nil {
 		return nil, model.NewAccesingCSVFileError(err.Error())
 	}
-	p.closeFile(pokemonFile)
+	defer p.fileService.Close()
 	return mapper.PokemonAPIToPokemonDTO(pokemonAPI), nil
 }
 

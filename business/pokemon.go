@@ -22,7 +22,8 @@ type pokemonBusiness struct {
 }
 
 // NewPokemonService initializer method for create PokemonService
-func NewPokemonBusiness(repository repository.PokemonRepository, service service.ExternalPokemonAPI) *pokemonBusiness {
+func NewPokemonBusiness(
+	repository repository.PokemonRepository, service service.ExternalPokemonAPI) *pokemonBusiness {
 	return &pokemonBusiness{
 		pokemonRepository: repository,
 		serviceAPI:        service,
@@ -57,7 +58,7 @@ func (s pokemonBusiness) StoreByID(id int) (*model.PokemonDTO, *model.ErrorHandl
 		return nil, err
 	}
 	pokemon, errRepository := s.pokemonRepository.StoreToCSV(*pokemonAPI)
-	if err != nil {
+	if errRepository != nil {
 		return nil, errRepository
 	}
 	return pokemon, nil
