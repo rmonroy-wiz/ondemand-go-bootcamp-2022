@@ -54,7 +54,7 @@ func (p pokemonRepository) GetByID(id int) (*model.PokemonDTO, *model.ErrorHandl
 	}
 
 	for _, pokemon := range pokemons {
-		if pokemon.Id == id {
+		if pokemon.ID == id {
 			return pokemon, nil
 		}
 	}
@@ -69,7 +69,7 @@ func (p *pokemonRepository) StoreToCSV(pokemonAPI model.PokemonAPI) (*model.Poke
 		return nil, err
 	}
 	pokemon := mapper.PokemonAPItoPokemonCSV(pokemonAPI)
-	pokemonMap[pokemon.Id] = pokemon
+	pokemonMap[pokemon.ID] = pokemon
 	pokemons := make([]model.PokemonCSV, 0)
 	for _, pokemonObj := range pokemonMap {
 		pokemons = append(pokemons, pokemonObj)
@@ -94,7 +94,7 @@ func (p pokemonRepository) GetCSVDataInMemory() (map[int]model.PokemonCSV, *mode
 		return nil, err
 	}
 	for _, pokemon := range pokemons {
-		pokemonMap[pokemon.Id] = mapper.PokemonDTOToPokemonCSV(pokemon)
+		pokemonMap[pokemon.ID] = mapper.PokemonDTOToPokemonCSV(pokemon)
 	}
 	return pokemonMap, nil
 }

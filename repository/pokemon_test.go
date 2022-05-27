@@ -45,7 +45,7 @@ func Test_pokemonRepository_GetAll(t *testing.T) {
 	mockFileServ1.On("Close")
 
 	pokemonsCSV := []model.PokemonCSV{{
-		Id:             1,
+		ID:             1,
 		Name:           "bulbasaur",
 		Height:         100,
 		Weight:         200,
@@ -61,7 +61,7 @@ func Test_pokemonRepository_GetAll(t *testing.T) {
 
 	pokemons := []*model.PokemonDTO{
 		{
-			Id:             1,
+			ID:             1,
 			Name:           "bulbasaur",
 			Height:         100,
 			Weight:         200,

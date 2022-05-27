@@ -73,7 +73,7 @@ func Test_pokemonBusiness_StoreByID(t *testing.T) {
 	mockService1.On("GetPokemonFromAPI", identifier).Return(nil, new(model.ErrorHandler))
 
 	pokemonAPI := &model.PokemonAPI{
-		Id:             identifier,
+		ID:             identifier,
 		BaseExperience: 50,
 		Height:         20,
 		Weight:         30,
@@ -88,7 +88,7 @@ func Test_pokemonBusiness_StoreByID(t *testing.T) {
 	}
 
 	pokemonDTO := &model.PokemonDTO{
-		Id:             identifier,
+		ID:             identifier,
 		BaseExperience: 50,
 		Height:         20,
 		Weight:         30,
@@ -184,7 +184,7 @@ func Test_pokemonBusiness_GetByID(t *testing.T) {
 	mockRepo1.On("GetByID", identifier).Return(nil, new(model.ErrorHandler))
 
 	pokemonDTO := &model.PokemonDTO{
-		Id:             identifier,
+		ID:             identifier,
 		BaseExperience: 50,
 		Height:         20,
 		Weight:         30,

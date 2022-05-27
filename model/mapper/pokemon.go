@@ -15,7 +15,7 @@ func PokemonAPItoPokemonCSV(pokemonAPI model.PokemonAPI) model.PokemonCSV {
 		type2 = pokemonAPI.Types[1].Type.Name
 	}
 	return model.PokemonCSV{
-		Id:             pokemonAPI.Id,
+		ID:             pokemonAPI.ID,
 		Name:           pokemonAPI.Name,
 		Height:         pokemonAPI.Height,
 		Weight:         pokemonAPI.Weight,
@@ -26,7 +26,7 @@ func PokemonAPItoPokemonCSV(pokemonAPI model.PokemonAPI) model.PokemonCSV {
 }
 func PokemonDTOToPokemonCSV(pokemonDTO *model.PokemonDTO) model.PokemonCSV {
 	return model.PokemonCSV{
-		Id:             pokemonDTO.Id,
+		ID:             pokemonDTO.ID,
 		Name:           pokemonDTO.Name,
 		Height:         pokemonDTO.Height,
 		Weight:         pokemonDTO.Weight,
@@ -46,7 +46,7 @@ func PokemonAPIToPokemonDTO(pokemonAPI model.PokemonAPI) *model.PokemonDTO {
 		type2 = pokemonAPI.Types[1].Type.Name
 	}
 	return &model.PokemonDTO{
-		Id:             pokemonAPI.Id,
+		ID:             pokemonAPI.ID,
 		Name:           pokemonAPI.Name,
 		Height:         pokemonAPI.Height,
 		Weight:         pokemonAPI.Weight,
@@ -58,7 +58,7 @@ func PokemonAPIToPokemonDTO(pokemonAPI model.PokemonAPI) *model.PokemonDTO {
 
 func PokemonCSVToPokemonDTO(pokemonCSV model.PokemonCSV) *model.PokemonDTO {
 	return &model.PokemonDTO{
-		Id:             pokemonCSV.Id,
+		ID:             pokemonCSV.ID,
 		Name:           pokemonCSV.Name,
 		Height:         pokemonCSV.Height,
 		Weight:         pokemonCSV.Weight,
