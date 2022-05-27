@@ -59,7 +59,7 @@ func Test_pokemonRepository_GetAll(t *testing.T) {
 		*arg = pokemonsCSV
 	}).Return(nil)
 
-	pokemons := []*model.PokemonDTO{
+	pokemons := []model.PokemonDTO{
 		{
 			ID:             1,
 			Name:           "bulbasaur",
@@ -78,7 +78,7 @@ func Test_pokemonRepository_GetAll(t *testing.T) {
 	tests := []struct {
 		name      string
 		fields    fields
-		want      []*model.PokemonDTO
+		want      []model.PokemonDTO
 		wantError *model.ErrorHandler
 	}{
 		{

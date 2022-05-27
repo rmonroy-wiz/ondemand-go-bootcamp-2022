@@ -10,9 +10,9 @@ import (
 
 //go:generate mockery --name PokemonRepository --filename pokemon.go --outpkg mocks --structname PokemonRepositoryMock --disable-version-string
 type PokemonRepository interface {
-	GetAll() ([]*model.PokemonDTO, *model.ErrorHandler)
-	GetByID(id int) (*model.PokemonDTO, *model.ErrorHandler)
-	StoreToCSV(pokemonAPI model.PokemonAPI) (*model.PokemonDTO, *model.ErrorHandler)
+	GetAll() ([]model.PokemonDTO, *model.ErrorHandler)
+	GetByID(id int) (model.PokemonDTO, *model.ErrorHandler)
+	StoreToCSV(pokemonAPI model.PokemonAPI) (model.PokemonDTO, *model.ErrorHandler)
 	GetCSVDataInMemory() (map[int]model.PokemonCSV, *model.ErrorHandler)
 }
 
@@ -31,7 +31,7 @@ func NewPokemonRepository(csvServ service.CSV, fileServ service.File) *pokemonRe
 }
 
 // GetAll get all pokemons from csv file
-func (p *pokemonRepository) GetAll() ([]*model.PokemonDTO, *model.ErrorHandler) {
+func (p *pokemonRepository) GetAll() ([]model.PokemonDTO, *model.ErrorHandler) {
 	pokemonFile, err := p.fileService.OpenFile(os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if err != nil {
 		return nil, model.NewOpenFileError(err.Error())
@@ -47,10 +47,10 @@ func (p *pokemonRepository) GetAll() ([]*model.PokemonDTO, *model.ErrorHandler) 
 }
 
 // GetByID get pokemon from csv by id
-func (p pokemonRepository) GetByID(id int) (*model.PokemonDTO, *model.ErrorHandler) {
+func (p pokemonRepository) GetByID(id int) (model.PokemonDTO, *model.ErrorHandler) {
 	pokemons, err := p.GetAll()
 	if err != nil {
-		return nil, err
+		return model.PokemonDTO{}, err
 	}
 
 	for _, pokemon := range pokemons {
@@ -59,14 +59,14 @@ func (p pokemonRepository) GetByID(id int) (*model.PokemonDTO, *model.ErrorHandl
 		}
 	}
 
-	return nil, model.NewNotFoundPokemonError(id)
+	return model.PokemonDTO{}, model.NewNotFoundPokemonError(id)
 }
 
 // StoreToCSV store pokemon to csv
-func (p *pokemonRepository) StoreToCSV(pokemonAPI model.PokemonAPI) (*model.PokemonDTO, *model.ErrorHandler) {
+func (p *pokemonRepository) StoreToCSV(pokemonAPI model.PokemonAPI) (model.PokemonDTO, *model.ErrorHandler) {
 	pokemonMap, err := p.GetCSVDataInMemory()
 	if err != nil {
-		return nil, err
+		return model.PokemonDTO{}, err
 	}
 	pokemon := mapper.PokemonAPItoPokemonCSV(pokemonAPI)
 	pokemonMap[pokemon.ID] = pokemon
@@ -77,10 +77,10 @@ func (p *pokemonRepository) StoreToCSV(pokemonAPI model.PokemonAPI) (*model.Poke
 
 	pokemonFile, errFile := p.fileService.OpenFile(os.O_RDWR|os.O_CREATE, os.ModePerm)
 	if errFile != nil {
-		return nil, model.NewOpenFileError(errFile.Error())
+		return model.PokemonDTO{}, model.NewOpenFileError(errFile.Error())
 	}
 	if err := p.csvService.MarshalFile(&pokemons, pokemonFile); err != nil {
-		return nil, model.NewAccesingCSVFileError(err.Error())
+		return model.PokemonDTO{}, model.NewAccesingCSVFileError(err.Error())
 	}
 	defer p.fileService.Close()
 	return mapper.PokemonAPIToPokemonDTO(pokemonAPI), nil

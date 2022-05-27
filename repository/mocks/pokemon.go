@@ -15,15 +15,15 @@ type PokemonRepositoryMock struct {
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *PokemonRepositoryMock) GetAll() ([]*model.PokemonDTO, *model.ErrorHandler) {
+func (_m *PokemonRepositoryMock) GetAll() ([]model.PokemonDTO, *model.ErrorHandler) {
 	ret := _m.Called()
 
-	var r0 []*model.PokemonDTO
-	if rf, ok := ret.Get(0).(func() []*model.PokemonDTO); ok {
+	var r0 []model.PokemonDTO
+	if rf, ok := ret.Get(0).(func() []model.PokemonDTO); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*model.PokemonDTO)
+			r0 = ret.Get(0).([]model.PokemonDTO)
 		}
 	}
 
@@ -40,16 +40,14 @@ func (_m *PokemonRepositoryMock) GetAll() ([]*model.PokemonDTO, *model.ErrorHand
 }
 
 // GetByID provides a mock function with given fields: id
-func (_m *PokemonRepositoryMock) GetByID(id int) (*model.PokemonDTO, *model.ErrorHandler) {
+func (_m *PokemonRepositoryMock) GetByID(id int) (model.PokemonDTO, *model.ErrorHandler) {
 	ret := _m.Called(id)
 
-	var r0 *model.PokemonDTO
-	if rf, ok := ret.Get(0).(func(int) *model.PokemonDTO); ok {
+	var r0 model.PokemonDTO
+	if rf, ok := ret.Get(0).(func(int) model.PokemonDTO); ok {
 		r0 = rf(id)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.PokemonDTO)
-		}
+		r0 = ret.Get(0).(model.PokemonDTO)
 	}
 
 	var r1 *model.ErrorHandler
@@ -90,16 +88,14 @@ func (_m *PokemonRepositoryMock) GetCSVDataInMemory() (map[int]model.PokemonCSV,
 }
 
 // StoreToCSV provides a mock function with given fields: pokemonAPI
-func (_m *PokemonRepositoryMock) StoreToCSV(pokemonAPI model.PokemonAPI) (*model.PokemonDTO, *model.ErrorHandler) {
+func (_m *PokemonRepositoryMock) StoreToCSV(pokemonAPI model.PokemonAPI) (model.PokemonDTO, *model.ErrorHandler) {
 	ret := _m.Called(pokemonAPI)
 
-	var r0 *model.PokemonDTO
-	if rf, ok := ret.Get(0).(func(model.PokemonAPI) *model.PokemonDTO); ok {
+	var r0 model.PokemonDTO
+	if rf, ok := ret.Get(0).(func(model.PokemonAPI) model.PokemonDTO); ok {
 		r0 = rf(pokemonAPI)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.PokemonDTO)
-		}
+		r0 = ret.Get(0).(model.PokemonDTO)
 	}
 
 	var r1 *model.ErrorHandler
