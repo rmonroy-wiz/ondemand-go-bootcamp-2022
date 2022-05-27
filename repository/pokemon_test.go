@@ -76,10 +76,10 @@ func Test_pokemonRepository_GetAll(t *testing.T) {
 		fileService service.File
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		want   []*model.PokemonDTO
-		want1  *model.ErrorHandler
+		name      string
+		fields    fields
+		want      []*model.PokemonDTO
+		wantError *model.ErrorHandler
 	}{
 		{
 			name: "Happy Path",
@@ -87,8 +87,8 @@ func Test_pokemonRepository_GetAll(t *testing.T) {
 				csvService:  mockCSVServ1,
 				fileService: mockFileServ1,
 			},
-			want:  pokemons,
-			want1: nil,
+			want:      pokemons,
+			wantError: nil,
 		},
 	}
 	for _, tt := range tests {
@@ -101,8 +101,8 @@ func Test_pokemonRepository_GetAll(t *testing.T) {
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("pokemonRepository.GetAll() got = %v, want %v", got, tt.want)
 			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("pokemonRepository.GetAll() got1 = %v, want %v", got1, tt.want1)
+			if !reflect.DeepEqual(got1, tt.wantError) {
+				t.Errorf("pokemonRepository.GetAll() got1 = %v, want %v", got1, tt.wantError)
 			}
 		})
 	}
