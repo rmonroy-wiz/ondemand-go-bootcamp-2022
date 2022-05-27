@@ -55,12 +55,12 @@ func Test_pokemonBusiness_GetAll(t *testing.T) {
 				pokemonRepository: tt.fields.pokemonRepository,
 				serviceAPI:        tt.fields.serviceAPI,
 			}
-			got, got1 := s.GetAll()
+			got, gotError := s.GetAll()
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("pokemonBusiness.GetAll() got = %v, want %v", got, tt.want)
 			}
-			if !reflect.DeepEqual(got1, tt.wantError) {
-				t.Errorf("pokemonBusiness.GetAll() got1 = %v, want %v", got1, tt.wantError)
+			if !reflect.DeepEqual(gotError, tt.wantError) {
+				t.Errorf("pokemonBusiness.GetAll() gotError = %v, wantError %v", gotError, tt.wantError)
 			}
 		})
 	}
@@ -166,12 +166,12 @@ func Test_pokemonBusiness_StoreByID(t *testing.T) {
 				pokemonRepository: tt.fields.pokemonRepository,
 				serviceAPI:        tt.fields.serviceAPI,
 			}
-			got, got1 := s.StoreByID(tt.args.id)
+			got, gotError := s.StoreByID(tt.args.id)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("pokemonBusiness.StoreByID() got = %v, want %v", got, tt.want)
 			}
-			if !reflect.DeepEqual(got1, tt.wantError) {
-				t.Errorf("pokemonBusiness.StoreByID() got1 = %v, want %v", got1, tt.wantError)
+			if !reflect.DeepEqual(gotError, tt.wantError) {
+				t.Errorf("pokemonBusiness.StoreByID() gotError = %v, wantError %v", gotError, tt.wantError)
 			}
 		})
 	}
@@ -241,12 +241,12 @@ func Test_pokemonBusiness_GetByID(t *testing.T) {
 				pokemonRepository: tt.fields.pokemonRepository,
 				serviceAPI:        tt.fields.serviceAPI,
 			}
-			got, got1 := s.GetByID(tt.args.id)
+			got, gotError := s.GetByID(tt.args.id)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("pokemonBusiness.GetByID() got = %v, want %v", got, tt.want)
 			}
-			if !reflect.DeepEqual(got1, tt.wantError) {
-				t.Errorf("pokemonBusiness.GetByID() got1 = %v, want %v", got1, tt.wantError)
+			if !reflect.DeepEqual(gotError, tt.wantError) {
+				t.Errorf("pokemonBusiness.GetByID() gotError = %v, wantError %v", gotError, tt.wantError)
 			}
 		})
 	}

@@ -97,12 +97,12 @@ func Test_pokemonRepository_GetAll(t *testing.T) {
 				csvService:  tt.fields.csvService,
 				fileService: tt.fields.fileService,
 			}
-			got, got1 := p.GetAll()
+			got, gotError := p.GetAll()
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("pokemonRepository.GetAll() got = %v, want %v", got, tt.want)
 			}
-			if !reflect.DeepEqual(got1, tt.wantError) {
-				t.Errorf("pokemonRepository.GetAll() got1 = %v, want %v", got1, tt.wantError)
+			if !reflect.DeepEqual(gotError, tt.wantError) {
+				t.Errorf("pokemonRepository.GetAll() gotError = %v, wantError %v", gotError, tt.wantError)
 			}
 		})
 	}
