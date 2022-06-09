@@ -13,6 +13,8 @@ type PokemonBusiness interface {
 	GetAll() ([]model.PokemonDTO, *model.ErrorHandler)
 	GetByID(id int) (model.PokemonDTO, *model.ErrorHandler)
 	StoreByID(id int) (model.PokemonDTO, *model.ErrorHandler)
+	SearchPokemonSingle(typeSearch string, items int, itemsPerWorker int) ([]model.PokemonDTO, *model.ErrorHandler)
+	SearchPokemonThread(typeSearch string, items int, itemsPerWorker int) ([]model.PokemonDTO, *model.ErrorHandler)
 }
 
 // PokemonService dependencies from Pokemon service
@@ -62,4 +64,55 @@ func (s pokemonBusiness) StoreByID(id int) (model.PokemonDTO, *model.ErrorHandle
 		return model.PokemonDTO{}, errRepository
 	}
 	return pokemon, nil
+}
+
+func (s pokemonBusiness) SearchPokemonSingle(typeSearch string, items int, itemsPerWorker int) ([]model.PokemonDTO, *model.ErrorHandler) {
+	log.Println("enter to search pokemons by odd or even!!!")
+	pokemons, err := s.pokemonRepository.GetAll()
+	if err != nil {
+		return make([]model.PokemonDTO, 0), err
+	}
+	if items > len(pokemons) {
+		return make([]model.PokemonDTO, 0), model.NewWrongParameterLimitValueError("items", 0, len(pokemons))
+	}
+	if items < itemsPerWorker {
+		return make([]model.PokemonDTO, 0), model.NewParameterGreaterThanOtherParameterError("items_per_worker", "items")
+	}
+
+	resultPokemons := make([]model.PokemonDTO, 0)
+	var odd bool
+	if typeSearch == "odd" {
+		odd = true
+	} else {
+		odd = false
+	}
+	for _, pokemon := range pokemons {
+		if odd {
+			if pokemon.ID%2 == 0 {
+				resultPokemons = append(resultPokemons, pokemon)
+			}
+		} else {
+			if pokemon.ID%2 != 0 {
+				resultPokemons = append(resultPokemons, pokemon)
+			}
+		}
+	}
+
+	return resultPokemons, nil
+}
+
+func (s pokemonBusiness) SearchPokemonThread(typeSearch string, items int, itemsPerWorker int) ([]model.PokemonDTO, *model.ErrorHandler) {
+	log.Println("enter to search pokemons by odd or even!!!")
+	pokemons, err := s.pokemonRepository.GetAll()
+	if err != nil {
+		return make([]model.PokemonDTO, 0), err
+	}
+	if items > len(pokemons) {
+		return make([]model.PokemonDTO, 0), model.NewWrongParameterLimitValueError("items", 0, len(pokemons))
+	}
+	if items < itemsPerWorker {
+		return make([]model.PokemonDTO, 0), model.NewParameterGreaterThanOtherParameterError("items_per_worker", "items")
+	}
+
+	return pokemons, nil
 }
