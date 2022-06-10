@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"reflect"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -72,8 +71,9 @@ func (ctrl pokemon) SearchPokemon(c *gin.Context) {
 		return
 	}
 	typeValidValues := []string{"odd", "even"}
-	if contains(typeValidValues, typeParam) {
+	if !contains(typeValidValues, typeParam) {
 		ctrl.ResponseError(c, model.NewQueryParameterDoesNotContainsValidValues("type", typeValidValues))
+		return
 	}
 
 	items := c.Query("items")
@@ -81,25 +81,24 @@ func (ctrl pokemon) SearchPokemon(c *gin.Context) {
 		ctrl.ResponseError(c, model.NewQueryParameterDoesNotFound("items"))
 		return
 	}
-	if reflect.TypeOf(items).Kind().String() == "int" {
+	itemsInt, err := strconv.Atoi(items)
+	if err != nil {
 		ctrl.ResponseError(c, model.NewQueryParameterDoesNotHaveValidTypeValue("items", "int"))
 		return
 	}
 
 	itemsPerWorkers := c.Query("items_per_workers")
 	if itemsPerWorkers == "" {
-		ctrl.ResponseError(c, model.NewQueryParameterDoesNotFound("items"))
+		ctrl.ResponseError(c, model.NewQueryParameterDoesNotFound("items_per_workers"))
 		return
 	}
-	if reflect.TypeOf(items).Kind().String() == "int" {
+	itempsPerWorkersInt, err := strconv.Atoi(itemsPerWorkers)
+	if err != nil {
 		ctrl.ResponseError(c, model.NewQueryParameterDoesNotHaveValidTypeValue("items_per_workers", "int"))
 		return
 	}
 
-	itemsInt, _ := strconv.Atoi(items)
-	itempsPerWorkersInt, _ := strconv.Atoi(itemsPerWorkers)
-
-	pokemons, errBusiness := ctrl.pokemonBusiness.SearchPokemonSingle(typeParam, itemsInt, itempsPerWorkersInt)
+	pokemons, errBusiness := ctrl.pokemonBusiness.SearchPokemonThread(typeParam, itemsInt, itempsPerWorkersInt)
 
 	if errBusiness != nil {
 		ctrl.ResponseError(c, errBusiness)

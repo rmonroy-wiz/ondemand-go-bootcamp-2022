@@ -114,5 +114,60 @@ func (s pokemonBusiness) SearchPokemonThread(typeSearch string, items int, items
 		return make([]model.PokemonDTO, 0), model.NewParameterGreaterThanOtherParameterError("items_per_worker", "items")
 	}
 
-	return pokemons, nil
+	numWorkers := int(len(pokemons) / itemsPerWorker)
+	pokemonsChan := make(chan model.PokemonDTO, len(pokemons))
+	resultsChan := make(chan model.WorkerResult, len(pokemons))
+
+	pokemonFinalResult := make([]model.PokemonDTO, 0)
+
+	for w := 0; w < numWorkers; w++ {
+		go worker(w+1, typeSearch, pokemonsChan, resultsChan)
+	}
+
+	isReached := false
+	for !isReached {
+		for _, pokemon := range pokemons {
+			pokemonsChan <- pokemon
+			result := <-resultsChan
+			if result.IsValidResult {
+				pokemonFinalResult = append(pokemonFinalResult, result.Pokemon)
+			}
+			if len(pokemonFinalResult) == items {
+				break
+			}
+		}
+		isReached = true
+	}
+	close(pokemonsChan)
+	return pokemonFinalResult, nil
+}
+
+func worker(id int, typeSearch string, pokemonChan <-chan model.PokemonDTO, result chan<- model.WorkerResult) {
+	var odd bool
+	if typeSearch == "odd" {
+		odd = true
+	} else {
+		odd = false
+	}
+	for pokemon := range pokemonChan {
+		if odd {
+			if pokemon.ID%2 == 0 {
+				result <- model.WorkerResult{
+					IsValidResult: true,
+					Pokemon:       pokemon,
+				}
+			}
+		} else {
+			if pokemon.ID%2 != 0 {
+				result <- model.WorkerResult{
+					IsValidResult: true,
+					Pokemon:       pokemon,
+				}
+			}
+		}
+		result <- model.WorkerResult{
+			IsValidResult: false,
+			Pokemon:       model.PokemonDTO{},
+		}
+	}
 }
