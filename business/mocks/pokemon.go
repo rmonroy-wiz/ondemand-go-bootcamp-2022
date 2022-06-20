@@ -62,6 +62,31 @@ func (_m *PokemonBusinessMock) GetByID(id int) (model.PokemonDTO, *model.ErrorHa
 	return r0, r1
 }
 
+// SearchPokemon provides a mock function with given fields: typeSearch, items, itemsPerWorker
+func (_m *PokemonBusinessMock) SearchPokemon(typeSearch string, items int, itemsPerWorker int) ([]model.PokemonDTO, *model.ErrorHandler) {
+	ret := _m.Called(typeSearch, items, itemsPerWorker)
+
+	var r0 []model.PokemonDTO
+	if rf, ok := ret.Get(0).(func(string, int, int) []model.PokemonDTO); ok {
+		r0 = rf(typeSearch, items, itemsPerWorker)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]model.PokemonDTO)
+		}
+	}
+
+	var r1 *model.ErrorHandler
+	if rf, ok := ret.Get(1).(func(string, int, int) *model.ErrorHandler); ok {
+		r1 = rf(typeSearch, items, itemsPerWorker)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*model.ErrorHandler)
+		}
+	}
+
+	return r0, r1
+}
+
 // StoreByID provides a mock function with given fields: id
 func (_m *PokemonBusinessMock) StoreByID(id int) (model.PokemonDTO, *model.ErrorHandler) {
 	ret := _m.Called(id)

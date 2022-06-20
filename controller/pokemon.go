@@ -98,7 +98,7 @@ func (ctrl pokemon) SearchPokemon(c *gin.Context) {
 		return
 	}
 
-	pokemons, errBusiness := ctrl.pokemonBusiness.SearchPokemonThread(typeParam, itemsInt, itempsPerWorkersInt)
+	pokemons, errBusiness := ctrl.pokemonBusiness.SearchPokemon(typeParam, itemsInt, itempsPerWorkersInt)
 
 	if errBusiness != nil {
 		ctrl.ResponseError(c, errBusiness)

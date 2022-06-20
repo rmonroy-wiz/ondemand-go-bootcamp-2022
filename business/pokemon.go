@@ -13,8 +13,7 @@ type PokemonBusiness interface {
 	GetAll() ([]model.PokemonDTO, *model.ErrorHandler)
 	GetByID(id int) (model.PokemonDTO, *model.ErrorHandler)
 	StoreByID(id int) (model.PokemonDTO, *model.ErrorHandler)
-	SearchPokemonSingle(typeSearch string, items int, itemsPerWorker int) ([]model.PokemonDTO, *model.ErrorHandler)
-	SearchPokemonThread(typeSearch string, items int, itemsPerWorker int) ([]model.PokemonDTO, *model.ErrorHandler)
+	SearchPokemon(typeSearch string, items int, itemsPerWorker int) ([]model.PokemonDTO, *model.ErrorHandler)
 }
 
 // PokemonService dependencies from Pokemon service
@@ -66,108 +65,13 @@ func (s pokemonBusiness) StoreByID(id int) (model.PokemonDTO, *model.ErrorHandle
 	return pokemon, nil
 }
 
-func (s pokemonBusiness) SearchPokemonSingle(typeSearch string, items int, itemsPerWorker int) ([]model.PokemonDTO, *model.ErrorHandler) {
-	log.Println("enter to search pokemons by odd or even!!!")
-	pokemons, err := s.pokemonRepository.GetAll()
-	if err != nil {
-		return make([]model.PokemonDTO, 0), err
-	}
-	if items > len(pokemons) {
-		return make([]model.PokemonDTO, 0), model.NewWrongParameterLimitValueError("items", 0, len(pokemons))
-	}
+func (s pokemonBusiness) SearchPokemon(typeSearch string, items int, itemsPerWorker int) ([]model.PokemonDTO, *model.ErrorHandler) {
+
 	if items < itemsPerWorker {
 		return make([]model.PokemonDTO, 0), model.NewParameterGreaterThanOtherParameterError("items_per_worker", "items")
 	}
 
-	resultPokemons := make([]model.PokemonDTO, 0)
-	var odd bool
-	if typeSearch == "odd" {
-		odd = true
-	} else {
-		odd = false
-	}
-	for _, pokemon := range pokemons {
-		if odd {
-			if pokemon.ID%2 == 0 {
-				resultPokemons = append(resultPokemons, pokemon)
-			}
-		} else {
-			if pokemon.ID%2 != 0 {
-				resultPokemons = append(resultPokemons, pokemon)
-			}
-		}
-	}
+	pokemons, err := s.pokemonRepository.WorkerPoolSearchPokemon(typeSearch, items, itemsPerWorker)
 
-	return resultPokemons, nil
-}
-
-func (s pokemonBusiness) SearchPokemonThread(typeSearch string, items int, itemsPerWorker int) ([]model.PokemonDTO, *model.ErrorHandler) {
-	log.Println("enter to search pokemons by odd or even!!!")
-	pokemons, err := s.pokemonRepository.GetAll()
-	if err != nil {
-		return make([]model.PokemonDTO, 0), err
-	}
-	if items > len(pokemons) {
-		return make([]model.PokemonDTO, 0), model.NewWrongParameterLimitValueError("items", 0, len(pokemons))
-	}
-	if items < itemsPerWorker {
-		return make([]model.PokemonDTO, 0), model.NewParameterGreaterThanOtherParameterError("items_per_worker", "items")
-	}
-
-	numWorkers := int(len(pokemons) / itemsPerWorker)
-	pokemonsChan := make(chan model.PokemonDTO, len(pokemons))
-	resultsChan := make(chan model.WorkerResult, len(pokemons))
-
-	pokemonFinalResult := make([]model.PokemonDTO, 0)
-
-	for w := 0; w < numWorkers; w++ {
-		go worker(w+1, typeSearch, pokemonsChan, resultsChan)
-	}
-
-	isReached := false
-	for !isReached {
-		for _, pokemon := range pokemons {
-			pokemonsChan <- pokemon
-			result := <-resultsChan
-			if result.IsValidResult {
-				pokemonFinalResult = append(pokemonFinalResult, result.Pokemon)
-			}
-			if len(pokemonFinalResult) == items {
-				break
-			}
-		}
-		isReached = true
-	}
-	close(pokemonsChan)
-	return pokemonFinalResult, nil
-}
-
-func worker(id int, typeSearch string, pokemonChan <-chan model.PokemonDTO, result chan<- model.WorkerResult) {
-	var odd bool
-	if typeSearch == "odd" {
-		odd = true
-	} else {
-		odd = false
-	}
-	for pokemon := range pokemonChan {
-		if odd {
-			if pokemon.ID%2 == 0 {
-				result <- model.WorkerResult{
-					IsValidResult: true,
-					Pokemon:       pokemon,
-				}
-			}
-		} else {
-			if pokemon.ID%2 != 0 {
-				result <- model.WorkerResult{
-					IsValidResult: true,
-					Pokemon:       pokemon,
-				}
-			}
-		}
-		result <- model.WorkerResult{
-			IsValidResult: false,
-			Pokemon:       model.PokemonDTO{},
-		}
-	}
+	return pokemons, err
 }
