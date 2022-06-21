@@ -3,6 +3,7 @@ package model
 import (
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 type ErrorHandler struct {
@@ -57,6 +58,33 @@ func NewURLParameterDoesNotFound(parameter string) *ErrorHandler {
 	}
 }
 
+func NewQueryParameterDoesNotFound(parameter string) *ErrorHandler {
+	return &ErrorHandler{
+		Title:      "The query parameter does not exist",
+		Message:    fmt.Sprintf("The parameter: %s is not present in the request", parameter),
+		SystemCode: 1005,
+		StatusCode: http.StatusUnprocessableEntity,
+	}
+}
+
+func NewQueryParameterDoesNotContainsValidValues(parameter string, validValues []string) *ErrorHandler {
+	return &ErrorHandler{
+		Title:      "The query parameter does not contains valid values",
+		Message:    fmt.Sprintf("The parameter: %s does not have the valid parameters: [%s]", parameter, strings.Join(validValues, ",")),
+		SystemCode: 1005,
+		StatusCode: http.StatusUnprocessableEntity,
+	}
+}
+
+func NewQueryParameterDoesNotHaveValidTypeValue(parameter string, typeParameter string) *ErrorHandler {
+	return &ErrorHandler{
+		Title:      "The query parameter does not contains valid type",
+		Message:    fmt.Sprintf("The parameter: %s does not have the valid type: %s", parameter, typeParameter),
+		SystemCode: 1006,
+		StatusCode: http.StatusUnprocessableEntity,
+	}
+}
+
 func NewNotFoundPokemonsError() *ErrorHandler {
 	return &ErrorHandler{
 		Title:      "The pokemons do not found",
@@ -89,5 +117,23 @@ func NewGetPokemonFromAPINotFoundError(id int) *ErrorHandler {
 		Message:    fmt.Sprintf("The pokemon with id: %d does not found", id),
 		SystemCode: 3001,
 		StatusCode: http.StatusNotFound,
+	}
+}
+
+func NewWrongParameterLimitValueError(parameter string, minValue int, maxValue int) *ErrorHandler {
+	return &ErrorHandler{
+		Title:      "The query parameter value is out of bounds",
+		Message:    fmt.Sprintf("The parameter: %s needs to be between %d and %d", parameter, minValue, maxValue),
+		SystemCode: 4000,
+		StatusCode: http.StatusUnprocessableEntity,
+	}
+}
+
+func NewParameterGreaterThanOtherParameterError(parameter1 string, parameter2 string) *ErrorHandler {
+	return &ErrorHandler{
+		Title:      "The parameter value is wrong",
+		Message:    fmt.Sprintf("The parameter  %s cannot be greather than %s", parameter1, parameter2),
+		SystemCode: 4001,
+		StatusCode: http.StatusUnprocessableEntity,
 	}
 }

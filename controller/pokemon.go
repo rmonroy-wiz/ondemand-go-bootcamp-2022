@@ -62,3 +62,57 @@ func (ctrl pokemon) StorePokemonByID(c *gin.Context) {
 
 	ctrl.ResponseSucess(c, http.StatusCreated, pokemon)
 }
+
+// SearchPokemon
+func (ctrl pokemon) SearchPokemon(c *gin.Context) {
+	typeParam := c.Query("type")
+	if typeParam == "" {
+		ctrl.ResponseError(c, model.NewQueryParameterDoesNotFound("type"))
+		return
+	}
+	typeValidValues := []string{"odd", "even"}
+	if !contains(typeValidValues, typeParam) {
+		ctrl.ResponseError(c, model.NewQueryParameterDoesNotContainsValidValues("type", typeValidValues))
+		return
+	}
+
+	items := c.Query("items")
+	if items == "" {
+		ctrl.ResponseError(c, model.NewQueryParameterDoesNotFound("items"))
+		return
+	}
+	itemsInt, err := strconv.Atoi(items)
+	if err != nil {
+		ctrl.ResponseError(c, model.NewQueryParameterDoesNotHaveValidTypeValue("items", "int"))
+		return
+	}
+
+	itemsPerWorkers := c.Query("items_per_workers")
+	if itemsPerWorkers == "" {
+		ctrl.ResponseError(c, model.NewQueryParameterDoesNotFound("items_per_workers"))
+		return
+	}
+	itempsPerWorkersInt, err := strconv.Atoi(itemsPerWorkers)
+	if err != nil {
+		ctrl.ResponseError(c, model.NewQueryParameterDoesNotHaveValidTypeValue("items_per_workers", "int"))
+		return
+	}
+
+	pokemons, errBusiness := ctrl.pokemonBusiness.SearchPokemon(typeParam, itemsInt, itempsPerWorkersInt)
+
+	if errBusiness != nil {
+		ctrl.ResponseError(c, errBusiness)
+		return
+	}
+
+	ctrl.ResponseSucess(c, http.StatusOK, pokemons)
+}
+
+func contains(array []string, search string) bool {
+	for _, value := range array {
+		if search == value {
+			return true
+		}
+	}
+	return false
+}

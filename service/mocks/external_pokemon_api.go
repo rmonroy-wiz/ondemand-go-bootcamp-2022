@@ -15,16 +15,14 @@ type ExternalPokemonAPIMock struct {
 }
 
 // GetPokemonFromAPI provides a mock function with given fields: id
-func (_m *ExternalPokemonAPIMock) GetPokemonFromAPI(id int) (*model.PokemonAPI, *model.ErrorHandler) {
+func (_m *ExternalPokemonAPIMock) GetPokemonFromAPI(id int) (model.PokemonAPI, *model.ErrorHandler) {
 	ret := _m.Called(id)
 
-	var r0 *model.PokemonAPI
-	if rf, ok := ret.Get(0).(func(int) *model.PokemonAPI); ok {
+	var r0 model.PokemonAPI
+	if rf, ok := ret.Get(0).(func(int) model.PokemonAPI); ok {
 		r0 = rf(id)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.PokemonAPI)
-		}
+		r0 = ret.Get(0).(model.PokemonAPI)
 	}
 
 	var r1 *model.ErrorHandler

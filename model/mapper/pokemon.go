@@ -24,7 +24,7 @@ func PokemonAPItoPokemonCSV(pokemonAPI model.PokemonAPI) model.PokemonCSV {
 		SecondaryType:  type2,
 	}
 }
-func PokemonDTOToPokemonCSV(pokemonDTO *model.PokemonDTO) model.PokemonCSV {
+func PokemonDTOToPokemonCSV(pokemonDTO model.PokemonDTO) model.PokemonCSV {
 	return model.PokemonCSV{
 		ID:             pokemonDTO.ID,
 		Name:           pokemonDTO.Name,
@@ -35,7 +35,7 @@ func PokemonDTOToPokemonCSV(pokemonDTO *model.PokemonDTO) model.PokemonCSV {
 		SecondaryType:  pokemonDTO.SecondaryType,
 	}
 }
-func PokemonAPIToPokemonDTO(pokemonAPI model.PokemonAPI) *model.PokemonDTO {
+func PokemonAPIToPokemonDTO(pokemonAPI model.PokemonAPI) model.PokemonDTO {
 	var type1 string
 	var type2 string
 	if len(pokemonAPI.Types) < 2 {
@@ -45,7 +45,7 @@ func PokemonAPIToPokemonDTO(pokemonAPI model.PokemonAPI) *model.PokemonDTO {
 		type1 = pokemonAPI.Types[0].Type.Name
 		type2 = pokemonAPI.Types[1].Type.Name
 	}
-	return &model.PokemonDTO{
+	return model.PokemonDTO{
 		ID:             pokemonAPI.ID,
 		Name:           pokemonAPI.Name,
 		Height:         pokemonAPI.Height,
@@ -56,8 +56,8 @@ func PokemonAPIToPokemonDTO(pokemonAPI model.PokemonAPI) *model.PokemonDTO {
 	}
 }
 
-func PokemonCSVToPokemonDTO(pokemonCSV model.PokemonCSV) *model.PokemonDTO {
-	return &model.PokemonDTO{
+func PokemonCSVToPokemonDTO(pokemonCSV model.PokemonCSV) model.PokemonDTO {
+	return model.PokemonDTO{
 		ID:             pokemonCSV.ID,
 		Name:           pokemonCSV.Name,
 		Height:         pokemonCSV.Height,
@@ -68,8 +68,8 @@ func PokemonCSVToPokemonDTO(pokemonCSV model.PokemonCSV) *model.PokemonDTO {
 	}
 }
 
-func PokemonsCSVToPokemonsDTO(pokemonsCSV []model.PokemonCSV) []*model.PokemonDTO {
-	pokemonsDTO := make([]*model.PokemonDTO, 0)
+func PokemonsCSVToPokemonsDTO(pokemonsCSV []model.PokemonCSV) []model.PokemonDTO {
+	pokemonsDTO := make([]model.PokemonDTO, 0)
 	for _, pokemonCSV := range pokemonsCSV {
 		pokemonsDTO = append(pokemonsDTO, PokemonCSVToPokemonDTO(pokemonCSV))
 	}

@@ -13,22 +13,22 @@ import (
 
 func Test_pokemonBusiness_GetAll(t *testing.T) {
 	mockRepo1 := new(repoMocks.PokemonRepositoryMock)
-	mockRepo1.On("GetAll").Return([]*model.PokemonDTO{}, nil)
+	mockRepo1.On("GetAll").Return([]model.PokemonDTO{}, nil)
 
 	mockRepo2 := new(repoMocks.PokemonRepositoryMock)
 	mockRepo2.On("GetAll").Return(nil, new(model.ErrorHandler))
 
-	want1 := []*model.PokemonDTO{}
+	want1 := []model.PokemonDTO{}
 
 	type fields struct {
 		pokemonRepository repository.PokemonRepository
 		serviceAPI        service.ExternalPokemonAPI
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		want   []*model.PokemonDTO
-		want1  *model.ErrorHandler
+		name      string
+		fields    fields
+		want      []model.PokemonDTO
+		wantError *model.ErrorHandler
 	}{
 		{
 			name: "Get all pokemons",
@@ -36,8 +36,8 @@ func Test_pokemonBusiness_GetAll(t *testing.T) {
 				pokemonRepository: mockRepo1,
 				serviceAPI:        nil,
 			},
-			want:  want1,
-			want1: nil,
+			want:      want1,
+			wantError: nil,
 		},
 		{
 			name: "Error getting pokemons",
@@ -45,8 +45,8 @@ func Test_pokemonBusiness_GetAll(t *testing.T) {
 				pokemonRepository: mockRepo2,
 				serviceAPI:        nil,
 			},
-			want:  nil,
-			want1: &model.ErrorHandler{},
+			want:      make([]model.PokemonDTO, 0),
+			wantError: &model.ErrorHandler{},
 		},
 	}
 	for _, tt := range tests {
@@ -55,12 +55,12 @@ func Test_pokemonBusiness_GetAll(t *testing.T) {
 				pokemonRepository: tt.fields.pokemonRepository,
 				serviceAPI:        tt.fields.serviceAPI,
 			}
-			got, got1 := s.GetAll()
+			got, gotError := s.GetAll()
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("pokemonBusiness.GetAll() got = %v, want %v", got, tt.want)
 			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("pokemonBusiness.GetAll() got1 = %v, want %v", got1, tt.want1)
+			if !reflect.DeepEqual(gotError, tt.wantError) {
+				t.Errorf("pokemonBusiness.GetAll() gotError = %v, wantError %v", gotError, tt.wantError)
 			}
 		})
 	}
@@ -70,9 +70,9 @@ func Test_pokemonBusiness_StoreByID(t *testing.T) {
 	identifier := int(5)
 
 	mockService1 := new(serviceMocks.ExternalPokemonAPIMock)
-	mockService1.On("GetPokemonFromAPI", identifier).Return(nil, new(model.ErrorHandler))
+	mockService1.On("GetPokemonFromAPI", identifier).Return(model.PokemonAPI{}, new(model.ErrorHandler))
 
-	pokemonAPI := &model.PokemonAPI{
+	pokemonAPI := model.PokemonAPI{
 		ID:             identifier,
 		BaseExperience: 50,
 		Height:         20,
@@ -87,7 +87,7 @@ func Test_pokemonBusiness_StoreByID(t *testing.T) {
 		},
 	}
 
-	pokemonDTO := &model.PokemonDTO{
+	pokemonDTO := model.PokemonDTO{
 		ID:             identifier,
 		BaseExperience: 50,
 		Height:         20,
@@ -101,13 +101,13 @@ func Test_pokemonBusiness_StoreByID(t *testing.T) {
 	mockService2.On("GetPokemonFromAPI", identifier).Return(pokemonAPI, nil)
 
 	mockRepo2 := new(repoMocks.PokemonRepositoryMock)
-	mockRepo2.On("StoreToCSV", *pokemonAPI).Return(nil, new(model.ErrorHandler))
+	mockRepo2.On("StoreToCSV", pokemonAPI).Return(model.PokemonDTO{}, new(model.ErrorHandler))
 
 	mockService3 := new(serviceMocks.ExternalPokemonAPIMock)
 	mockService3.On("GetPokemonFromAPI", identifier).Return(pokemonAPI, nil)
 
 	mockRepo3 := new(repoMocks.PokemonRepositoryMock)
-	mockRepo3.On("StoreToCSV", *pokemonAPI).Return(pokemonDTO, nil)
+	mockRepo3.On("StoreToCSV", pokemonAPI).Return(pokemonDTO, nil)
 
 	type fields struct {
 		pokemonRepository repository.PokemonRepository
@@ -117,11 +117,11 @@ func Test_pokemonBusiness_StoreByID(t *testing.T) {
 		id int
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   *model.PokemonDTO
-		want1  *model.ErrorHandler
+		name      string
+		fields    fields
+		args      args
+		want      model.PokemonDTO
+		wantError *model.ErrorHandler
 	}{
 		{
 			name: "Error in the GetPokemonAPI service",
@@ -132,8 +132,8 @@ func Test_pokemonBusiness_StoreByID(t *testing.T) {
 			args: args{
 				id: identifier,
 			},
-			want:  nil,
-			want1: &model.ErrorHandler{},
+			want:      model.PokemonDTO{},
+			wantError: &model.ErrorHandler{},
 		},
 		{
 			name: "Error in the StoreToCSV repository",
@@ -144,8 +144,8 @@ func Test_pokemonBusiness_StoreByID(t *testing.T) {
 			args: args{
 				id: identifier,
 			},
-			want:  nil,
-			want1: &model.ErrorHandler{},
+			want:      model.PokemonDTO{},
+			wantError: &model.ErrorHandler{},
 		},
 		{
 			name: "Happy path",
@@ -156,8 +156,8 @@ func Test_pokemonBusiness_StoreByID(t *testing.T) {
 			args: args{
 				id: identifier,
 			},
-			want:  pokemonDTO,
-			want1: nil,
+			want:      pokemonDTO,
+			wantError: nil,
 		},
 	}
 	for _, tt := range tests {
@@ -166,12 +166,12 @@ func Test_pokemonBusiness_StoreByID(t *testing.T) {
 				pokemonRepository: tt.fields.pokemonRepository,
 				serviceAPI:        tt.fields.serviceAPI,
 			}
-			got, got1 := s.StoreByID(tt.args.id)
+			got, gotError := s.StoreByID(tt.args.id)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("pokemonBusiness.StoreByID() got = %v, want %v", got, tt.want)
 			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("pokemonBusiness.StoreByID() got1 = %v, want %v", got1, tt.want1)
+			if !reflect.DeepEqual(gotError, tt.wantError) {
+				t.Errorf("pokemonBusiness.StoreByID() gotError = %v, wantError %v", gotError, tt.wantError)
 			}
 		})
 	}
@@ -181,9 +181,9 @@ func Test_pokemonBusiness_GetByID(t *testing.T) {
 	identifier := int(5)
 
 	mockRepo1 := new(repoMocks.PokemonRepositoryMock)
-	mockRepo1.On("GetByID", identifier).Return(nil, new(model.ErrorHandler))
+	mockRepo1.On("GetByID", identifier).Return(model.PokemonDTO{}, new(model.ErrorHandler))
 
-	pokemonDTO := &model.PokemonDTO{
+	pokemonDTO := model.PokemonDTO{
 		ID:             identifier,
 		BaseExperience: 50,
 		Height:         20,
@@ -204,11 +204,11 @@ func Test_pokemonBusiness_GetByID(t *testing.T) {
 		id int
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   *model.PokemonDTO
-		want1  *model.ErrorHandler
+		name      string
+		fields    fields
+		args      args
+		want      model.PokemonDTO
+		wantError *model.ErrorHandler
 	}{
 		{
 			name: "Error in the GetByID repository",
@@ -219,8 +219,8 @@ func Test_pokemonBusiness_GetByID(t *testing.T) {
 			args: args{
 				id: identifier,
 			},
-			want:  nil,
-			want1: new(model.ErrorHandler),
+			want:      model.PokemonDTO{},
+			wantError: new(model.ErrorHandler),
 		},
 		{
 			name: "Happy path",
@@ -231,8 +231,8 @@ func Test_pokemonBusiness_GetByID(t *testing.T) {
 			args: args{
 				id: identifier,
 			},
-			want:  pokemonDTO,
-			want1: nil,
+			want:      pokemonDTO,
+			wantError: nil,
 		},
 	}
 	for _, tt := range tests {
@@ -241,12 +241,12 @@ func Test_pokemonBusiness_GetByID(t *testing.T) {
 				pokemonRepository: tt.fields.pokemonRepository,
 				serviceAPI:        tt.fields.serviceAPI,
 			}
-			got, got1 := s.GetByID(tt.args.id)
+			got, gotError := s.GetByID(tt.args.id)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("pokemonBusiness.GetByID() got = %v, want %v", got, tt.want)
 			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("pokemonBusiness.GetByID() got1 = %v, want %v", got1, tt.want1)
+			if !reflect.DeepEqual(gotError, tt.wantError) {
+				t.Errorf("pokemonBusiness.GetByID() gotError = %v, wantError %v", gotError, tt.wantError)
 			}
 		})
 	}

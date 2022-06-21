@@ -22,5 +22,10 @@ func main() {
 
 	r = router.PokemonRoutes(r)
 
-	r.Run(fmt.Sprintf(":%s", viper.Get("PORT").(string)))
+	port := viper.Get("PORT")
+	if port == nil {
+		port = "3000"
+	}
+
+	r.Run(fmt.Sprintf(":%s", port))
 }

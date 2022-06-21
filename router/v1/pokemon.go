@@ -22,6 +22,7 @@ func PokemonRoutes(r *gin.Engine) *gin.Engine {
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/pokemons", pokemon.GetAllPokemons)
+		v1.POST("/pokemons/search", pokemon.SearchPokemon)
 		v1.GET("/pokemons/:pokemonId", pokemon.GetPokemonByID)
 		v1.POST("/pokemons/:pokemonId", pokemon.StorePokemonByID)
 	}
